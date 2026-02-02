@@ -1,18 +1,67 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from functools import wraps
 import json
 import os
 from datetime import datetime
 import uuid
+import secrets
 
 app = Flask(__name__)
+app.secret_key = secrets.token_hex(32)  # セッション用の秘密鍵
 
 # データファイルパス
 DATA_DIR = './data'
 TOOLS_FILE = os.path.join(DATA_DIR, 'tools.json')
 CLICK_DATA_FILE = os.path.join(DATA_DIR, 'click_data.json')
+CONFIG_FILE = os.path.join(DATA_DIR, 'config.json')
 
 # データディレクトリを作成
 os.makedirs(DATA_DIR, exist_ok=True)
+
+# =====================
+# 設定管理
+# =====================
+def load_config():
+    """設定を読み込む"""
+    default_config = {
+        'admin_password': 'admin123',  # デフォルトパスワード
+        'session_timeout': 3600  # 1時間
+    }
+    if os.path.exists(CONFIG_FILE):
+        try:
+            with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+                # デフォルト値をマージ
+                for key, value in default_config.items():
+                    if key not in config:
+                        config[key] = value
+                return config
+        except:
+            pass
+    # デフォルト設定を保存
+    save_config(default_config)
+    return default_config
+
+def save_config(config):
+    """設定を保存"""
+    try:
+        with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
+            json.dump(config, f, ensure_ascii=False, indent=2)
+        return True
+    except:
+        return False
+
+# =====================
+# 認証デコレータ
+# =====================
+def login_required(f):
+    """管理画面へのアクセスを制限するデコレータ"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('admin_logged_in'):
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 def get_default_tools():
     """デフォルトのツールデータ"""
@@ -131,14 +180,57 @@ def index():
                            total_clicks=total_clicks)
 
 # =====================
+# 認証関連
+# =====================
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """ログインページ"""
+    if request.method == 'POST':
+        password = request.form.get('password', '')
+        config = load_config()
+
+        if password == config['admin_password']:
+            session['admin_logged_in'] = True
+            return redirect(url_for('admin'))
+        else:
+            return render_template('login.html', error='パスワードが正しくありません')
+
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    """ログアウト"""
+    session.pop('admin_logged_in', None)
+    return redirect(url_for('index'))
+
+# =====================
 # 管理画面
 # =====================
 @app.route('/admin')
+@login_required
 def admin():
     """管理画面を表示"""
     tools = load_tools()
     click_data = load_click_data()
     return render_template('admin.html', tools=tools, click_data=click_data)
+
+@app.route('/admin/settings', methods=['POST'])
+@login_required
+def update_settings():
+    """設定を更新"""
+    try:
+        data = request.get_json()
+        config = load_config()
+
+        if 'new_password' in data and data['new_password']:
+            config['admin_password'] = data['new_password']
+
+        if save_config(config):
+            return jsonify({'success': True})
+        else:
+            return jsonify({'error': '設定の保存に失敗しました'}), 500
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # =====================
 # ツール管理 API

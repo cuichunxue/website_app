@@ -27,6 +27,16 @@
     color: white;
 }
 
+.navbar-admin .nav-logout {
+    background-color: var(--danger);
+    color: white;
+    margin-left: 8px;
+}
+
+.navbar-admin .nav-logout:hover {
+    background-color: #B91C1C;
+}
+
 /* 管理ヘッダー */
 .admin-header {
     margin-bottom: 24px;
