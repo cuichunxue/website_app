@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理画面 | 統計ナビゲーター</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="admin-body">
+    <!-- ナビゲーションバー -->
+    <nav class="navbar navbar-admin">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-cog"></i>
+                <span>管理画面</span>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">
+                    <i class="fas fa-home"></i> ホームに戻る
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+        <div class="container">
+            <!-- 管理ヘッダー -->
+            <header class="admin-header">
+                <h1><i class="fas fa-tools"></i> ツール管理</h1>
+                <p>ツールの追加、編集、削除を行います</p>
+            </header>
+
+            <!-- アクションバー -->
+            <div class="action-bar">
+                <button class="btn btn-success" onclick="showAddModal()">
+                    <i class="fas fa-plus"></i> 新規ツール追加
+                </button>
+                <button class="btn btn-secondary" onclick="refreshToolList()">
+                    <i class="fas fa-sync-alt"></i> 更新
+                </button>
+                <button class="btn btn-danger" onclick="resetAllStats()">
+                    <i class="fas fa-trash-alt"></i> 統計リセット
+                </button>
+            </div>
+
+            <!-- ツールリスト -->
+            <div class="tools-table-container">
+                <table class="tools-table" id="toolsTable">
+                    <thead>
+                        <tr>
+                            <th>順序</th>
+                            <th>ID</th>
+                            <th>ツール名</th>
+                            <th>URL</th>
+                            <th>アイコン</th>
+                            <th>状態</th>
+                            <th>クリック数</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="toolsTableBody">
+                        {% for tool in tools %}
+                        <tr data-tool-id="{{ tool.id }}">
+                            <td class="order-cell">
+                                <span class="order-badge">{{ tool.order }}</span>
+                            </td>
+                            <td><code>{{ tool.id }}</code></td>
+                            <td>
+                                <div class="tool-name-cell">
+                                    <span class="color-indicator" style="background-color: {{ tool.color }}"></span>
+                                    {{ tool.name }}
+                                </div>
+                            </td>
+                            <td><a href="{{ tool.url }}" target="_blank" class="url-link">{{ tool.url }}</a></td>
+                            <td><i class="fas fa-{{ tool.icon }}"></i> {{ tool.icon }}</td>
+                            <td>
+                                {% if tool.active %}
+                                <span class="status-badge status-active">有効</span>
+                                {% else %}
+                                <span class="status-badge status-inactive">無効</span>
+                                {% endif %}
+                            </td>
+                            <td class="click-count">{{ click_data.get(tool.id, 0) }}</td>
+                            <td class="actions-cell">
+                                <button class="btn btn-sm btn-edit" onclick="showEditModal('{{ tool.id }}')" title="編集">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-delete" onclick="deleteTool('{{ tool.id }}')" title="削除">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- アイコン一覧 -->
+            <div class="icon-reference">
+                <h3><i class="fas fa-icons"></i> 利用可能なアイコン一覧</h3>
+                <div class="icon-grid">
+                    <div class="icon-item" onclick="selectIcon('chart-bar')"><i class="fas fa-chart-bar"></i><span>chart-bar</span></div>
+                    <div class="icon-item" onclick="selectIcon('chart-line')"><i class="fas fa-chart-line"></i><span>chart-line</span></div>
+                    <div class="icon-item" onclick="selectIcon('chart-pie')"><i class="fas fa-chart-pie"></i><span>chart-pie</span></div>
+                    <div class="icon-item" onclick="selectIcon('calculator')"><i class="fas fa-calculator"></i><span>calculator</span></div>
+                    <div class="icon-item" onclick="selectIcon('flask')"><i class="fas fa-flask"></i><span>flask</span></div>
+                    <div class="icon-item" onclick="selectIcon('database')"><i class="fas fa-database"></i><span>database</span></div>
+                    <div class="icon-item" onclick="selectIcon('table')"><i class="fas fa-table"></i><span>table</span></div>
+                    <div class="icon-item" onclick="selectIcon('project-diagram')"><i class="fas fa-project-diagram"></i><span>project-diagram</span></div>
+                    <div class="icon-item" onclick="selectIcon('share-alt')"><i class="fas fa-share-alt"></i><span>share-alt</span></div>
+                    <div class="icon-item" onclick="selectIcon('network-wired')"><i class="fas fa-network-wired"></i><span>network-wired</span></div>
+                    <div class="icon-item" onclick="selectIcon('cube')"><i class="fas fa-cube"></i><span>cube</span></div>
+                    <div class="icon-item" onclick="selectIcon('cubes')"><i class="fas fa-cubes"></i><span>cubes</span></div>
+                    <div class="icon-item" onclick="selectIcon('brain')"><i class="fas fa-brain"></i><span>brain</span></div>
+                    <div class="icon-item" onclick="selectIcon('cogs')"><i class="fas fa-cogs"></i><span>cogs</span></div>
+                    <div class="icon-item" onclick="selectIcon('microscope')"><i class="fas fa-microscope"></i><span>microscope</span></div>
+                    <div class="icon-item" onclick="selectIcon('atom')"><i class="fas fa-atom"></i><span>atom</span></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 追加/編集モーダル -->
+    <div class="modal-overlay" id="toolModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle"><i class="fas fa-plus"></i> 新規ツール追加</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="toolForm">
+                    <input type="hidden" id="editToolId" value="">
+
+                    <div class="form-group">
+                        <label for="toolId">ツールID <span class="required">*</span></label>
+                        <input type="text" id="toolId" name="id" placeholder="例: my_tool" pattern="[a-z0-9_]+" title="小文字英数字とアンダースコアのみ">
+                        <small>英小文字、数字、アンダースコアのみ（編集時は変更不可）</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="toolName">ツール名 <span class="required">*</span></label>
+                        <input type="text" id="toolName" name="name" required placeholder="例: データ分析ツール">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="toolUrl">URL <span class="required">*</span></label>
+                        <input type="url" id="toolUrl" name="url" required placeholder="例: http://0.0.0.0:8080/">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="toolDescription">説明</label>
+                        <textarea id="toolDescription" name="description" rows="3" placeholder="ツールの説明を入力"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="toolIcon">アイコン</label>
+                            <div class="icon-input-group">
+                                <i class="fas fa-cube icon-preview" id="iconPreview"></i>
+                                <input type="text" id="toolIcon" name="icon" value="cube" placeholder="例: chart-bar">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="toolColor">カラー</label>
+                            <div class="color-input-group">
+                                <input type="color" id="toolColor" name="color" value="#6B7280">
+                                <input type="text" id="toolColorText" value="#6B7280" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="toolOrder">表示順序</label>
+                            <input type="number" id="toolOrder" name="order" min="1" value="1">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="toolActive">状態</label>
+                            <div class="toggle-group">
+                                <label class="toggle">
+                                    <input type="checkbox" id="toolActive" name="active" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span id="activeLabel">有効</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">キャンセル</button>
+                <button class="btn btn-primary" onclick="saveTool()">
+                    <i class="fas fa-save"></i> 保存
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知エリア -->
+    <div id="notification" class="notification"></div>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>

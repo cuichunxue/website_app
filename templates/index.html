@@ -3,149 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>統計ナビゲーター</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <title>統計ナビゲーター | データ分析ツールプラットフォーム</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <style>
-        .manual-link {
-            position: fixed; /* 固定位置にする */
-            top: 10px; /* 上からの距離 */
-            right: 10px; /* 右からの距離 */
-            text-decoration: none;
-            font-size: 24px; /* アイコンのサイズを調整 */
-            z-index: 1000; /* 他の要素の上に表示 */
-        }
-    </style>
 </head>
 <body>
-<div class="container">
-    <div class="header">
-        <h1>🔬 統計ナビゲーター</h1>
-        <a href="/static/pdfs/DataView_Manual.pdf"  class="manual-link" target="_blank">
-            📚マニュアル
-        </a>
-    </div>
-
-    <div class="stats-bar">
-        <div class="stat-item">
-            <div class="stat-number" id="totalClicks">{{ total_clicks }}</div>
-            <div class="stat-label">総クリック数</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number" id="activeTools">4</div>
-            <div class="stat-label">利用可能ツール</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number" id="currentTime">--:--</div>
-            <div class="stat-label">現在時刻</div>
-        </div>
-        <div class="stat-item">
-            <button class="reset-button" style="margin-bottom: 10px;" onclick="window.location.href='https://forms.office.com/r/2hyh7VT7E1'">📈解析ツール利用の相談</buton>
-            <button class="reset-button" onclick="window.location.href='https://forms.office.com/r/U0p5QcmqnE'">📊SQCデータ解析の相談</buton>
-	    <!--//onclick="resetStats()" -->
-        </div>
-    </div>
-
-    <div class="tools-grid">
-        <div class="tool-card" id="cooccurrence-card">
-            <div class="tool-title">
-                <div class="tool-icon" style="background: linear-gradient(45deg, #ff6b6b, #ee5a24);"></div>
-                DataView
+    <!-- ナビゲーションバー -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-chart-line"></i>
+                <span>統計ナビゲーター</span>
             </div>
-            <div class="tool-description">
-                テーブルから簡単に視覚的にデータの傾向やトレンドのつかみに活用できます。 複雑なデータセットを直感的に理解できるグラフやチャートに変換します。
-            </div>
-            <button class="tool-button" onclick="openTool('cooccurrence', 'http://0.0.0.0:8520/')">
-                🔗 DataViewを開く
-            </button>
-            <div class="click-count">
-                クリック数: <span id="cooccurrence-count">{{ click_data.cooccurrence }}</span>
+            <div class="nav-links">
+                <a href="/static/pdfs/DataView_Manual.pdf" target="_blank" class="nav-link">
+                    <i class="fas fa-book"></i> マニュアル
+                </a>
+                <a href="/admin" class="nav-link nav-admin">
+                    <i class="fas fa-cog"></i> 管理
+                </a>
             </div>
         </div>
+    </nav>
 
-        <div class="tool-card" id="mt-card">
-            <div class="tool-title">
-                <div class="tool-icon" style="background: linear-gradient(45deg, #4ecdc4, #44a08d);"></div>
-                MT法
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+        <div class="container">
+            <!-- ヘッダーセクション -->
+            <header class="page-header">
+                <h1>データ分析ツールプラットフォーム</h1>
+                <p>高度な統計解析・データ可視化ツールを一元管理</p>
+            </header>
+
+            <!-- 統計バー -->
+            <div class="stats-bar">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-mouse-pointer"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-number" id="totalClicks">{{ total_clicks }}</span>
+                        <span class="stat-label">総アクセス数</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-number" id="activeTools">{{ tools|length }}</span>
+                        <span class="stat-label">利用可能ツール</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-number" id="currentTime">--:--</span>
+                        <span class="stat-label">現在時刻</span>
+                    </div>
+                </div>
+                <div class="stat-card consultation-card">
+                    <div class="consultation-buttons">
+                        <a href="https://forms.office.com/r/2hyh7VT7E1" target="_blank" class="btn btn-consultation">
+                            <i class="fas fa-headset"></i> ツール利用相談
+                        </a>
+                        <a href="https://forms.office.com/r/U0p5QcmqnE" target="_blank" class="btn btn-consultation">
+                            <i class="fas fa-chart-pie"></i> SQCデータ解析相談
+                        </a>
+                    </div>
+                </div>
             </div>
-            <div class="tool-description">
-                マハラノビス・タグチ法を用いた品質工学分析。多変量データの異常検知や品質予測、プロセス最適化に活用できます。
-            </div>
-            <button class="tool-button" onclick="openTool('mt', 'http://0.0.0.0:5004/')">
-                📊 MT法を開く
-            </button>
-            <div class="click-count">
-                クリック数: <span id="mt-count">{{ click_data.mt }}</span>
+
+            <!-- ツールグリッド -->
+            <div class="tools-grid" id="toolsGrid">
+                {% for tool in tools %}
+                <div class="tool-card" data-tool-id="{{ tool.id }}">
+                    <div class="tool-card-header" style="border-left-color: {{ tool.color }}">
+                        <div class="tool-icon" style="background-color: {{ tool.color }}20; color: {{ tool.color }}">
+                            <i class="fas fa-{{ tool.icon }}"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-name">{{ tool.name }}</h3>
+                            <span class="tool-status">
+                                <i class="fas fa-circle"></i> 稼働中
+                            </span>
+                        </div>
+                    </div>
+                    <div class="tool-card-body">
+                        <p class="tool-description">{{ tool.description }}</p>
+                    </div>
+                    <div class="tool-card-footer">
+                        <button class="btn btn-primary tool-button" onclick="openTool('{{ tool.id }}', '{{ tool.url }}')">
+                            <i class="fas fa-external-link-alt"></i> ツールを開く
+                        </button>
+                        <div class="tool-stats">
+                            <i class="fas fa-chart-bar"></i>
+                            <span id="{{ tool.id }}-count">{{ click_data.get(tool.id, 0) }}</span> 回利用
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
         </div>
+    </main>
 
-        <div class="tool-card" id="sankey-card">
-            <div class="tool-title">
-                <div class="tool-icon" style="background: linear-gradient(45deg, #a8edea, #fed6e3);"></div>
-                Sankeyダイアグラム
-            </div>
-            <div class="tool-description">
-                フローやプロセスの流れを視覚的に表現。エネルギー流れ、資金の流れ、プロセス分析などに適用できます。
-            </div>
-            <button class="tool-button" onclick="openTool('sankey', 'http://0.0.0.0:5006/')">
-                🌊 Sankeyを開く
-            </button>
-            <div class="click-count">
-                クリック数: <span id="sankey-count">{{ click_data.sankey }}</span>
-            </div>
+    <!-- フッター -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 統計ナビゲーター | データ分析とインサイト発見のためのプラットフォーム</p>
+            <p class="footer-copyright">著作権: chunxue cui</p>
         </div>
+    </footer>
 
-        <div class="tool-card" id="fourth-card">
-            <div class="tool-title">
-                <div class="tool-icon" style="background: linear-gradient(45deg, #ffecd2, #fcb69f);"></div>
-                共起ネットワーク分析
-            </div>
-            <div class="tool-description">
-                テキストデータから単語間の共起関係を抽出し、ネットワーク図として可視化します。言語パターンの発見や概念間の関係性分析に最適です。
-            </div>
-            <button class="tool-button" onclick="openTool('fourth', 'http://0.0.0.0:8502/')">
-                📝 共起ネットワーク分析を開く
-            </button>
-            <div class="click-count">
-                クリック数: <span id="fourth-count">{{ click_data.fourth }}</span>
-            </div>
-        </div>
-    </div>
+    <!-- 通知エリア -->
+    <div id="notification" class="notification"></div>
 
-    <div class="footer">
-        <p>© 2025 統計ナビゲーター | データ分析とインサイト発見のためのプラットフォーム 著作権: © 2025 chunxue cui</p>
-    </div>
-</div>
-
-<script src="{{ url_for('static', filename='js/app.js') }}"></script>
-<script>
-    function openTool(toolName, url) {
-        fetch('/api/click', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ tool_name: toolName })
-        })
-        .then(response => {
-            if (response.ok) {
-                window.open(url, '_blank');
-            } else {
-                console.error('Error recording click:', response.statusText);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
-
-    function updateCurrentTime() {
-        const now = new Date();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        document.getElementById('currentTime').textContent = `${hours}:${minutes}`;
-    }
-
-    updateCurrentTime();
-    setInterval(updateCurrentTime, 60000);
-</script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>
