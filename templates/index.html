@@ -76,10 +76,22 @@
                 </div>
             </div>
 
+            <!-- 検索バー -->
+            <div class="search-bar">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" class="search-input" placeholder="ツール名や説明で検索...">
+                    <button class="search-clear" id="searchClear" style="display: none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="search-result-count" id="searchResultCount"></div>
+            </div>
+
             <!-- ツールグリッド -->
             <div class="tools-grid" id="toolsGrid">
                 {% for tool in tools %}
-                <div class="tool-card" data-tool-id="{{ tool.id }}">
+                <div class="tool-card" data-tool-id="{{ tool.id }}" data-tool-name="{{ tool.name }}" data-tool-description="{{ tool.description }}">
                     <div class="tool-card-header" style="border-left-color: {{ tool.color }}">
                         <div class="tool-icon" style="background-color: {{ tool.color }}20; color: {{ tool.color }}">
                             <i class="fas fa-{{ tool.icon }}"></i>
