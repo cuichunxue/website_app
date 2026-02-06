@@ -122,6 +122,26 @@ body {
     background-color: var(--gray-100);
 }
 
+/* ナビゲーション内検索 */
+.nav-search {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    padding: 0 24px;
+    max-width: 500px;
+}
+
+.nav-search .search-input-wrapper {
+    width: 100%;
+    min-width: 200px;
+}
+
+.nav-search .search-input {
+    padding: 10px 40px;
+    font-size: 0.9375rem;
+    border-radius: var(--border-radius);
+}
+
 /* =============================================
    コンテナ & レイアウト
    ============================================= */
@@ -561,11 +581,26 @@ body {
 @media (max-width: 768px) {
     .nav-container {
         padding: 0 16px;
-        height: 56px;
+        height: auto;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding-top: 12px;
+        padding-bottom: 12px;
     }
 
     .nav-brand span {
         display: none;
+    }
+
+    .nav-search {
+        order: 3;
+        flex-basis: 100%;
+        padding: 0;
+        max-width: none;
+    }
+
+    .nav-search .search-input {
+        padding: 10px 40px;
     }
 
     .nav-link span {
