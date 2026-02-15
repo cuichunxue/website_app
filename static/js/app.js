@@ -147,8 +147,25 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
+// URLを解決（相対パス → /local/ に変換）
+function resolveToolUrl(url) {
+    // 外部URL（http:// または https://）はそのまま
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+        return url;
+    }
+    // 既に /local/ で始まる場合はそのまま
+    if (url.startsWith('/local/')) {
+        return url;
+    }
+    // それ以外は相対パスとして /local/ を付与
+    return '/local/' + url;
+}
+
 // ツールを開く
 async function openTool(toolId, url) {
+    // URLを解決
+    const resolvedUrl = resolveToolUrl(url);
+
     try {
         // クリック数を記録
         const response = await fetch('/api/click', {
@@ -178,12 +195,12 @@ async function openTool(toolId, url) {
         }
 
         // ツールを新しいタブで開く
-        window.open(url, '_blank');
+        window.open(resolvedUrl, '_blank');
 
     } catch (error) {
         console.error('Error opening tool:', error);
         // エラーでもツールは開く
-        window.open(url, '_blank');
+        window.open(resolvedUrl, '_blank');
     }
 }
 
