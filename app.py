@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_from_directory, abort
 from functools import wraps
 import json
 import os
@@ -14,6 +14,7 @@ DATA_DIR = './data'
 TOOLS_FILE = os.path.join(DATA_DIR, 'tools.json')
 CLICK_DATA_FILE = os.path.join(DATA_DIR, 'click_data.json')
 CONFIG_FILE = os.path.join(DATA_DIR, 'config.json')
+LOCAL_TOOLS_DIR = './static/tools'  # ローカルHTMLファイルの保存先
 
 # データディレクトリを作成
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -178,6 +179,23 @@ def index():
                            tools=active_tools,
                            click_data=click_data,
                            total_clicks=total_clicks)
+
+# =====================
+# ローカルツール配信
+# =====================
+@app.route('/local/<path:filename>')
+def serve_local_tool(filename):
+    """ローカルHTMLファイルを配信"""
+    # セキュリティ: ディレクトリトラバーサル防止
+    if '..' in filename or filename.startswith('/'):
+        abort(403)
+
+    # ファイルの存在確認
+    file_path = os.path.join(LOCAL_TOOLS_DIR, filename)
+    if not os.path.exists(file_path):
+        abort(404)
+
+    return send_from_directory(LOCAL_TOOLS_DIR, filename)
 
 # =====================
 # 認証関連
