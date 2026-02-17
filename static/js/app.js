@@ -147,18 +147,18 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// URLを解決（相対パス → /local/ に変換）
+// URLを解決（相対パス → /static/tools/ に変換）
 function resolveToolUrl(url) {
     // 外部URL（http:// または https://）はそのまま
     if (url.startsWith('http://') || url.startsWith('https://')) {
         return url;
     }
-    // 既に /local/ で始まる場合はそのまま
-    if (url.startsWith('/local/')) {
+    // 既に絶対パスの場合はそのまま
+    if (url.startsWith('/')) {
         return url;
     }
-    // それ以外は相対パスとして /local/ を付与
-    return '/local/' + url;
+    // それ以外は相対パスとして /static/tools/ を付与
+    return '/static/tools/' + url;
 }
 
 // ツールを開く
